@@ -24,7 +24,7 @@ def polar2cart(magnitude: float, angulo: float):
 
 
 pygame.init()
-tela = pygame.display.set_mode((640, 480))
+tela = pygame.display.set_mode((700, 700))
 
 punho = ler_imagem('sprites/fist.png', (80, 80))
 feliz = ler_imagem('sprites/smile.png', (80, 80))
@@ -46,26 +46,28 @@ sair = False
 frames_triste = 0
 
 while not sair:
+    # tratamento de eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sair = True
 
     teclas_pressionadas = pygame.key.get_pressed()
-
-    punho_vx = 0
-    punho_vy = 0
     
+    # movimento na horizontal
     if teclas_pressionadas[pygame.K_a]:
         punho_vx = -0.1
-        
+    elif teclas_pressionadas[pygame.K_d]:
+        punho_vx = 0.1
+    else: 
+        punho_vx = 0.0
+    
+    # movimento na vertical
     if teclas_pressionadas[pygame.K_s]:
         punho_vy = 0.1
-
-    if teclas_pressionadas[pygame.K_d]:
-        punho_vx = 0.1
-
-    if teclas_pressionadas[pygame.K_w]:
+    elif teclas_pressionadas[pygame.K_w]:
         punho_vy = -0.1
+    else: 
+        punho_vy = 0.0
 
     if teclas_pressionadas[pygame.K_j]:
         # obtem o retangulo ao redor do punho na posicao atual do punho
@@ -77,6 +79,8 @@ while not sair:
             frames_triste = 500
 
     tela.fill("white")
+    pygame.draw.circle(tela, "red", (100, 100), 10)
+    pygame.draw.rect(tela, "green", (200, 300, 100, 200))
 
     feliz_vx, feliz_vy = polar2cart(feliz_magn, feliz_angulo)
     
@@ -90,11 +94,10 @@ while not sair:
         (feliz_y < 0) or (feliz_y > tela.get_height()):
         feliz_angulo = random.uniform(-math.pi, math.pi)
     
-    
     if punho_x < 0: punho_x = 0
     if punho_y < 0: punho_y = 0
-    if punho_x > tela.get_width(): punho_x = tela.get_width()
-    if punho_y > tela.get_height(): punho_y = tela.get_height()
+    if punho_x + punho.get_width() > tela.get_width(): punho_x = tela.get_width()
+    if punho_y + punho.get_height() > tela.get_height(): punho_y = tela.get_height()
     
     if frames_triste == 0:
         tela.blit(feliz, (feliz_x, feliz_y))
