@@ -22,6 +22,8 @@ class Inimigo:
                 ConfigJogo.TAM_INIMIGO.x,
                 ConfigJogo.TAM_INIMIGO.y):
             self._posicao = nova_posicao
+        else:
+            self._velocidade.x = -self._velocidade.x
 
     def desenha(self, tela: pygame.Surface):
         tela.blit(self._img, self._posicao.as_tuple())

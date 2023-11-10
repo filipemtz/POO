@@ -1,6 +1,7 @@
 
 import sys
 import pygame
+import random
 from time import time
 from typing import Tuple, List
 
@@ -75,11 +76,12 @@ class SpaceInvaders:
         for tiro in self._tiros_inimigos:
             tiro.atualiza_estado()
 
-        inimigo = self._enxame.inimigo_aleatorio()
-
-        if self._cron_espera_tiro_enxame.tempo_passado() > ConfigJogo.ESPERA_TIRO:
-            self._cria_tiro_inimigo(inimigo)
-            self._cron_espera_tiro_enxame.reset()
+        if random.random() < 0.3:
+            if self._cron_espera_tiro_enxame.tempo_passado() > ConfigJogo.ESPERA_TIRO:
+                if len(self._enxame._inimigos) > 0:
+                    inimigo = random.choice(self._enxame._inimigos)
+                    self._cria_tiro_inimigo(inimigo)
+                    self._cron_espera_tiro_enxame.reset()
 
         self._trata_colisoes()
         self._remove_tiros_fora_da_tela(self._tiros_inimigos)

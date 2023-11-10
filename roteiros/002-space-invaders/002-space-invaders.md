@@ -191,11 +191,47 @@ self._tela.blit(img, (px, py))
 
 Execute o jogo e verifique se a pontuação está sendo modificada como esperado. 
 
-## O Próximo Passo: O Enxame de Inimigos 
+## O Último Passo: O Enxame de Inimigos 
 
-O seu próximo desafio é modificar o jogo para que existam vários inimigos ao invés de apenas um. Junte-se com um colega, se necessário, e juntos tentem encontrar uma solução. Que tal criar uma classe Enxame para representar o conjunto de inimigos? 
+Para finalizar o nosso jogo, precisamos substituir o nosso inimigo solitário por um enxame de inimigos. Assista ao [gameplay](https://www.youtube.com/watch?v=MU4psw3ccUI) novamente e veja como o enxame se move como uma estrutura única (invisível) em formato de retângulo. Algo como um invólucro ou um contêiner. Mesmo quando fileiras inteiras de inimigos morrem, a estrutura continua se movendo como se estivesse completa. A figura abaixo torna visível o retângulo que envolve o enxame, sua posição e velocidade. 
 
+![Invólucro do Enxame](imgs-roteiro/enxame.png)
 
+Sempre que o retângulo toca os limites esquerdo e direito da tela, a velocidade na direção horizontal é invertida e a posição do eixo y é incrementada de forma que o enxame se aproxime do personagem. Se necessário, veja o [vídeo](https://www.youtube.com/watch?v=MU4psw3ccUI) novamente para observar esta dinâmica. 
 
+**A Classe Enxame e seu Construtor**: Vamos criar uma classe para representar o enxame. Crie o arquivo enxame.py e nele crie a classe Enxame. Na classe enxame, crie um lista para armazenar os inimigos que compõe o enxame e use *type hints* para que o VSCode seja capaz de sugerir os nomes de atributos e métodos da lista: 
 
+```
+from inimigo import Inimigo
 
+class Enxame:
+    def __init__(self):
+        self._inimigos: List[Inimigo] = []
+```
+
+A seguir, vamos criar um método chamado ```_criar_enxame``` para criar os inimigos e adicioná-los na lista. Assim como o muro no Breakout é composto por barras organizadas em linhas e colunas, o enxame será composto de inimigos organizados em uma estrutura similar. O número de linhas e colunas do enxame serão parâmetros pré-definidos na classe ConfigJogo. Inspire-se no método ```cria_muro``` da classe ```Breakout``` para implementar o método ```_criar_enxame```. Invoque o método no construtor após a criação da lista de inimigos vazia para criar e adicionar os inimigos na lista. 
+
+Por fim, crie atributos no construtor para armazenar a posição, o tamanho e a velocidade do enxame (como se ele fosse um retângulo). Vamos definir a posição inicial como o limite esquerdo da tela (x = 0) e em uma altura pré-definida na classe ConfigJogo. Como indicado na figura acima, no tamanho, a largura será o produto do número de colunas da "matriz" de inimigos pela largura de um inimigo e a altura será o produto do número de linhas da "matriz" pela altura de um inimigo. Note que a suposta matriz não existirá de fato no código, mas apenas uma lista de inimigos. Vamos definir a velocidade como sendo positiva no eixo x e zero no eixo y para que o enxame inicie se movendo para a direita. Note que ao adicionar os inimigos na lista, suas velocidades devem ser iguais àquela do retângulo que contém o enxame. 
+
+**Desenhando o Enxame na Tela**: Implemente o método desenha para desenhar o enxame na tela. Este método será bem simples e irá apenas iterar sobre os inimigos na lista e chamar o método desenha para cada um deles. 
+
+**Atualização de Estado**: Implemente o método atualiza_estado. Este método deverá atualizar a posição do retângulo que define o enxame e dos inimigos que pertencem ao enxame. Para isto, inicie fazendo um loop for para iterar sobre os inimigos e invocar o método de atualização do estado para cada um deles. Em seguida, verifique se o retângulo que representa o enxame chegou ao limite da tela. Em caso afirmativo, atualize a posição do retângulo e de todos os inimigos para um pouco mais para baixo no eixo y e inverta a velocidade no eixo horizontal para o enxame passar a se mover para o outro lado. 
+
+**Uso do Enxame na classe SpaceInvaders**: Modifique a classe SpaceInvaders para ao invés de criar um inimigo, criar um objeto do tipo Enxame. Substitua os usos da classe Inimigo pela classe Enxame. No trecho onde criávamos um tiro à partir do inimigo com 30% de chance, vamos selecionar um inimigo aleatório usando a função random.choice e lançar o tiro a partir dele. Primeiro, modifique o método ```_cria_tiro_inimigo``` para receber como argumento o inimigo que irá produzir o tiro. Em seguida, atualize o trecho que produz o tiro:
+
+```
+# se passou um tempo mínimo desde o último tiro
+if self._cron_espera_tiro_enxame.tempo_passado() > ConfigJogo.ESPERA_TIRO:
+
+    # se ainda existem inimigos vivos
+    if len(self._enxame._inimigos) > 0:
+
+        # selecione um inimigo aleatorio
+        inimigo = random.choice(self._enxame._inimigos)
+
+        # lance um tiro a partir deste inimigo
+        self._cria_tiro_inimigo(inimigo)
+
+        # reinicie o contador de tempo
+        self._cron_espera_tiro_enxame.reset()
+```
